@@ -1,24 +1,204 @@
-# Compiled class file
-*.class
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Day Bros Lawn Care - Price Calculator</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #e6f2e6;
+      color: #1b3e1b;
+      margin: 0;
+      padding: 0 1rem;
+    }
+    header {
+      background-color: #2d6a2d;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: bold;
+      letter-spacing: 1px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+    }
+    main {
+      max-width: 480px;
+      margin: 2rem auto 3rem auto;
+      background: white;
+      border-radius: 8px;
+      padding: 1.5rem 2rem;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: 600;
+    }
+    input[type="text"],
+    input[type="number"],
+    input[type="email"],
+    input[type="tel"],
+    select {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.3rem;
+      border: 1.5px solid #2d6a2d;
+      border-radius: 4px;
+      font-size: 1rem;
+      box-sizing: border-box;
+      outline-color: #2d6a2d;
+    }
+    input[type="checkbox"] {
+      margin-right: 0.5rem;
+      transform: scale(1.2);
+      vertical-align: middle;
+    }
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      margin-top: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+      color: #1b3e1b;
+    }
+    button {
+      margin-top: 2rem;
+      background-color: #2d6a2d;
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 700;
+      padding: 0.7rem 1.2rem;
+      border: none;
+      border-radius: 5px;
+      width: 100%;
+      cursor: pointer;
+      transition: background-color 0.25s ease;
+    }
+    button:hover {
+      background-color: #255225;
+    }
+    .price-display {
+      margin-top: 1.5rem;
+      background-color: #d3e8d3;
+      border: 2px solid #2d6a2d;
+      border-radius: 5px;
+      padding: 1rem;
+      font-size: 1.25rem;
+      font-weight: 700;
+      text-align: center;
+      color: #1b3e1b;
+    }
+    .thank-you {
+      margin-top: 1.5rem;
+      color: #2d6a2d;
+      font-weight: 700;
+      font-size: 1.2rem;
+      text-align: center;
+    }
+    @media (max-width: 520px) {
+      main {
+        margin: 1rem;
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>Day Bros Lawn Care - Price Calculator</header>
+  <main>
+    <form id="lawnCareForm">
+      <label for="address">Property Address:</label>
+      <input type="text" id="address" name="address" placeholder="123 Main St, City, State" required />
 
-# Log file
-*.log
+      <label for="lotSize">Lot Size (in acres):</label>
+      <input type="number" id="lotSize" name="lotSize" min="0.01" step="0.01" placeholder="e.g., 0.50" required />
 
-# BlueJ files
-*.ctxt
+      <label for="serviceFreq">Service Frequency:</label>
+      <select id="serviceFreq" name="serviceFreq" required>
+        <option value="weekly">Weekly</option>
+        <option value="biweekly">Biweekly</option>
+      </select>
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
+      <label class="checkbox-label">
+        <input type="checkbox" id="edgeTrimming" name="edgeTrimming" />
+        Include Edge Trimming (+$10)
+      </label>
 
-# Package Files #
-*.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
+      <label for="customerName">Your Name:</label>
+      <input type="text" id="customerName" name="customerName" required />
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
+      <label for="phone">Phone Number:</label>
+      <input type="tel" id="phone" name="phone" placeholder="123-456-7890" required />
+
+      <label for="email">Email Address:</label>
+      <input type="email" id="email" name="email" placeholder="email@example.com" required />
+
+      <div class="price-display" id="priceDisplay">Estimated Price: $0.00</div>
+
+      <button type="submit">Submit Request</button>
+
+      <div class="thank-you" id="thankYouMsg" style="display:none;">
+        Thanks for your request! We'll get back to you soon.
+      </div>
+    </form>
+  </main>
+
+  <script>
+    const form = document.getElementById('lawnCareForm');
+    const lotSizeInput = document.getElementById('lotSize');
+    const serviceFreqSelect = document.getElementById('serviceFreq');
+    const edgeCheckbox = document.getElementById('edgeTrimming');
+    const priceDisplay = document.getElementById('priceDisplay');
+    const thankYouMsg = document.getElementById('thankYouMsg');
+
+    function calculatePrice() {
+      const lotSize = parseFloat(lotSizeInput.value);
+      const freq = serviceFreqSelect.value;
+      const edge = edgeCheckbox.checked;
+
+      if (isNaN(lotSize) || lotSize <= 0) {
+        priceDisplay.textContent = "Estimated Price: $0.00";
+        return;
+      }
+
+      // Pricing rules:
+      // $20 per 1/4 acre = $80 per acre
+      const pricePerAcre = 80;
+      let basePrice = lotSize * pricePerAcre;
+
+      if (freq === 'biweekly') {
+        basePrice += 30; // biweekly flat charge
+      }
+
+      if (edge) {
+        basePrice += 10; // edging charge
+      }
+
+      priceDisplay.textContent = `Estimated Price: $${basePrice.toFixed(2)}`;
+    }
+
+    lotSizeInput.addEventListener('input', calculatePrice);
+    serviceFreqSelect.addEventListener('change', calculatePrice);
+    edgeCheckbox.addEventListener('change', calculatePrice);
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      // Normally here you'd submit data to a server or Google Sheets.
+      // For demo, just show thank you message and reset form.
+
+      thankYouMsg.style.display = 'block';
+      setTimeout(() => {
+        thankYouMsg.style.display = 'none';
+        form.reset();
+        priceDisplay.textContent = "Estimated Price: $0.00";
+      }, 4000);
+    });
+
+    // Initialize price display
+    calculatePrice();
+  </script>
+</body>
+</html>
